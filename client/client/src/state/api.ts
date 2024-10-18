@@ -13,14 +13,14 @@ export enum Priority {
   High = "High",
   Medium = "Medium",
   Low = "Low",
-  Backlog = "Backlog"
+  Backlog = "Backlog",
 }
 
 export enum Status {
   ToDo = "To Do",
   WorkInProgress = "Work In Progress",
   UnderReview = "Under Review",
-  Completed = "Completed"
+  Completed = "Completed",
 }
 
 export interface User {
@@ -49,10 +49,10 @@ export interface Task {
   tags?: string;
   startDate?: string;
   dueDate?: string;
-  points?: number,
-  projectId?: number,
-  authorUserId?: number,
-  assignedUserId?: number,
+  points?: number;
+  projectId?: number;
+  authorUserId?: number;
+  assignedUserId?: number;
 
   author?: User;
   assignee?: User;
@@ -63,21 +63,51 @@ export interface Task {
 export const api = createApi({
   baseQuery: fetchBaseQuery({ baseUrl: process.env.NEXT_PUBLIC_API_BASE_URL }),
   reducerPath: "api",
-  tagTypes: ["Projects"],
+  tagTypes: ["Projects", "Tasks"],
   endpoints: (build) => ({
     getProjects: build.query<Project[], void>({
       query: () => "projects",
-      providesTags: ["Projects"]
+      providesTags: ["Projects"],
     }),
     createProject: build.mutation<Project, Partial<Project>>({
       query: (project) => ({
         url: "projects",
         method: "POST",
-        body: project
+        body: project,
       }),
-      invalidatesTags: ["Projects"]
-    })
+      invalidatesTags: ["Projects"],
+    }),
+    getTasks: build.query<Task[], { projectId: number }>({
+      query: ({ projectId }) => `tasks?projectId=${projectId}`,
+      providesTags: (result) =>
+        result
+          ? result.map(({ id }) => ({ type: "Tasks" as const, id }))
+          : [{ type: "Tasks" as const }],
+    }),
+    createTask: build.mutation<Task, Partial<Task>>({
+      query: (task) => ({
+        url: "tasks",
+        method: "POST",
+        body: task,
+      }),
+      invalidatesTags: ["Tasks"],
+    }),
+    updateTaskStatus: build.mutation<Task, { taskId: number; status: string }>({
+      query: ({ taskId, status }) => ({
+        url: `tasks/${taskId}/status`,
+        method: "PATCH",
+        body: { status },
+      }),
+      invalidatesTags: (result, error, { taskId }) => [
+        { type: "Tasks", id: taskId },
+      ],
+    }),
   }),
 });
 
-export const {} = api;
+export const {
+  useGetProjectsQuery,
+  useCreateProjectMutation,
+  useGetTasksQuery,
+  useCreateTaskMutation,
+} = api;
