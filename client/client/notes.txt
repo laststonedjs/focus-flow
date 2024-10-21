@@ -1,2 +1,2 @@
 - in the sidebar above 'Projects' want to show all Projects using api
-- 
+- in the Project Header section create all four tabs with possibility of switching
