@@ -80,7 +80,20 @@ const TaskColumn = ({
       ref={(instance) => {
         drop(instance);
       }}
-    ></div>
+      className={`sl:py-4 rounded-lg py-2 xl:px-2 ${isOver ? "bg-blue-100 dark:bg-neutral-950" : ""}`}
+    >
+      <div className="mb-3 flex w-full">
+        <div
+          className={`w-2 !bg-[${statusColor[status]}] rounded-s-lg`}
+          style={{ backgroundColor: statusColor[status] }}
+        />
+        <div className="flex w-full items-center justify-between rounded-e-lg bg-white px-5 py-4 dark:bg-dark-secondary">
+          <h3 className="flex items-center text-lg font-semibold dark:text-white">
+            {status}{" "}
+          </h3>
+        </div>
+      </div>
+    </div>
   );
 };
 
